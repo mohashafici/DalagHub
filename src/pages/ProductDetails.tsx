@@ -1,17 +1,26 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useProducts, Product } from '@/contexts/ProductContext';
+import { useProducts, Product, generateWhatsAppLink, generatePhoneLink } from '@/contexts/ProductContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { CATEGORIES } from '@/types';
-import { ArrowLeft, MapPin, Calendar, Package, Phone, MessageCircle, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Package, Phone, MessageCircle, User, Loader2, Flag, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 export default function ProductDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getProductById } = useProducts();
+  const { getProductById, reportProduct } = useProducts();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportDescription, setReportDescription] = useState('');
+  const [isReporting, setIsReporting] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -51,8 +60,24 @@ export default function ProductDetailsPage() {
 
   const categoryInfo = CATEGORIES[product.category];
   const sellerPhone = product.seller_phone || '';
-  const whatsappUrl = `https://wa.me/${sellerPhone.replace(/[^0-9]/g, '')}?text=Hi! I'm interested in your listing "${product.title}" on DalagHub.`;
-  const phoneUrl = `tel:${sellerPhone}`;
+  const whatsappUrl = sellerPhone ? generateWhatsAppLink(sellerPhone, product.title) : '';
+  const phoneUrl = sellerPhone ? generatePhoneLink(sellerPhone) : '';
+  const isSold = product.status === 'sold';
+
+  const handleReport = async () => {
+    if (!reportReason || !id) return;
+    setIsReporting(true);
+    const result = await reportProduct(id, reportReason, reportDescription);
+    setIsReporting(false);
+    if (result.success) {
+      toast.success('Report submitted successfully');
+      setReportOpen(false);
+      setReportReason('');
+      setReportDescription('');
+    } else {
+      toast.error(result.error || 'Failed to submit report');
+    }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -84,10 +109,15 @@ export default function ProductDetailsPage() {
           alt={product.title}
           className="h-full w-full object-cover"
         />
-        <div className="absolute left-4 top-4">
+        <div className="absolute left-4 top-4 flex gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-card/90 px-3 py-1.5 text-sm font-medium backdrop-blur-sm">
             {categoryInfo.icon} {product.subcategory}
           </span>
+          {isSold && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/90 px-3 py-1.5 text-sm font-medium text-muted-foreground backdrop-blur-sm">
+              <CheckCircle className="h-4 w-4" /> Sold
+            </span>
+          )}
         </div>
       </div>
 
@@ -140,34 +170,92 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* Contact Buttons */}
-        <div className="space-y-3">
-          {sellerPhone && (
-            <>
-              <Button
-                asChild
-                variant="whatsapp"
-                size="lg"
-                className="w-full"
-              >
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="h-5 w-5" />
-                  Contact on WhatsApp
-                </a>
-              </Button>
+        {!isSold && (
+          <div className="space-y-3">
+            {sellerPhone && (
+              <>
+                <Button
+                  asChild
+                  variant="whatsapp"
+                  size="lg"
+                  className="w-full"
+                >
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-5 w-5" />
+                    Contact on WhatsApp
+                  </a>
+                </Button>
 
-              <Button
-                asChild
-                variant="call"
-                size="lg"
-                className="w-full"
-              >
-                <a href={phoneUrl}>
-                  <Phone className="h-5 w-5" />
-                  Call Seller
-                </a>
+                <Button
+                  asChild
+                  variant="call"
+                  size="lg"
+                  className="w-full"
+                >
+                  <a href={phoneUrl}>
+                    <Phone className="h-5 w-5" />
+                    Call Seller
+                  </a>
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+
+        {isSold && (
+          <div className="rounded-xl bg-muted p-4 text-center">
+            <p className="font-medium text-muted-foreground">This item has been sold</p>
+          </div>
+        )}
+
+        {/* Report Button */}
+        <div className="mt-6 flex justify-center">
+          <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                <Flag className="h-4 w-4" />
+                Report this listing
               </Button>
-            </>
-          )}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Report Listing</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Reason</Label>
+                  <Select value={reportReason} onValueChange={setReportReason}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a reason" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="spam">Spam or fake listing</SelectItem>
+                      <SelectItem value="inappropriate">Inappropriate content</SelectItem>
+                      <SelectItem value="fraud">Suspected fraud</SelectItem>
+                      <SelectItem value="duplicate">Duplicate listing</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Additional details (optional)</Label>
+                  <Textarea
+                    value={reportDescription}
+                    onChange={(e) => setReportDescription(e.target.value)}
+                    placeholder="Provide more details about your concern..."
+                    rows={3}
+                  />
+                </div>
+                <Button
+                  onClick={handleReport}
+                  disabled={!reportReason || isReporting}
+                  className="w-full"
+                >
+                  {isReporting ? 'Submitting...' : 'Submit Report'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </AppLayout>
