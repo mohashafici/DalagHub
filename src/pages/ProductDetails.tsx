@@ -1,16 +1,38 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useProducts } from '@/contexts/ProductContext';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useProducts, Product } from '@/contexts/ProductContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { CATEGORIES } from '@/types';
-import { ArrowLeft, MapPin, Calendar, Package, Phone, MessageCircle, User } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Package, Phone, MessageCircle, User, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function ProductDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProductById } = useProducts();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const product = getProductById(id || '');
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      setIsLoading(true);
+      const data = await getProductById(id);
+      setProduct(data);
+      setIsLoading(false);
+    };
+    fetchProduct();
+  }, [id, getProductById]);
+
+  if (isLoading) {
+    return (
+      <AppLayout showNav={false}>
+        <div className="flex min-h-screen flex-col items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   if (!product) {
     return (
@@ -28,11 +50,12 @@ export default function ProductDetailsPage() {
   }
 
   const categoryInfo = CATEGORIES[product.category];
-  const whatsappUrl = `https://wa.me/${product.sellerPhone.replace(/[^0-9]/g, '')}?text=Hi! I'm interested in your listing "${product.name}" on DalagHub.`;
-  const phoneUrl = `tel:${product.sellerPhone}`;
+  const sellerPhone = product.seller_phone || '';
+  const whatsappUrl = `https://wa.me/${sellerPhone.replace(/[^0-9]/g, '')}?text=Hi! I'm interested in your listing "${product.title}" on DalagHub.`;
+  const phoneUrl = `tel:${sellerPhone}`;
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -57,8 +80,8 @@ export default function ProductDetailsPage() {
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
         <img
-          src={product.images[0]}
-          alt={product.name}
+          src={product.images[0] || '/placeholder.svg'}
+          alt={product.title}
           className="h-full w-full object-cover"
         />
         <div className="absolute left-4 top-4">
@@ -71,7 +94,7 @@ export default function ProductDetailsPage() {
       {/* Content */}
       <div className="px-4 py-6">
         {/* Title & Price */}
-        <h2 className="mb-2 text-2xl font-bold text-foreground">{product.name}</h2>
+        <h2 className="mb-2 text-2xl font-bold text-foreground">{product.title}</h2>
         {product.price && (
           <p className="mb-4 text-xl font-bold text-accent">{product.price}</p>
         )}
@@ -88,7 +111,7 @@ export default function ProductDetailsPage() {
           </div>
           <div className="flex items-center gap-3 text-muted-foreground">
             <Calendar className="h-5 w-5 text-primary" />
-            <span>Posted {formatDate(product.createdAt)}</span>
+            <span>Posted {formatDate(product.created_at)}</span>
           </div>
         </div>
 
@@ -108,37 +131,43 @@ export default function ProductDetailsPage() {
               <User className="h-6 w-6 text-muted-foreground" />
             </div>
             <div>
-              <p className="font-medium text-foreground">{product.sellerName}</p>
-              <p className="text-sm text-muted-foreground">{product.sellerPhone}</p>
+              <p className="font-medium text-foreground">{product.seller_name}</p>
+              {sellerPhone && (
+                <p className="text-sm text-muted-foreground">{sellerPhone}</p>
+              )}
             </div>
           </div>
         </div>
 
         {/* Contact Buttons */}
         <div className="space-y-3">
-          <Button
-            asChild
-            variant="whatsapp"
-            size="lg"
-            className="w-full"
-          >
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-5 w-5" />
-              Contact on WhatsApp
-            </a>
-          </Button>
+          {sellerPhone && (
+            <>
+              <Button
+                asChild
+                variant="whatsapp"
+                size="lg"
+                className="w-full"
+              >
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="h-5 w-5" />
+                  Contact on WhatsApp
+                </a>
+              </Button>
 
-          <Button
-            asChild
-            variant="call"
-            size="lg"
-            className="w-full"
-          >
-            <a href={phoneUrl}>
-              <Phone className="h-5 w-5" />
-              Call Seller
-            </a>
-          </Button>
+              <Button
+                asChild
+                variant="call"
+                size="lg"
+                className="w-full"
+              >
+                <a href={phoneUrl}>
+                  <Phone className="h-5 w-5" />
+                  Call Seller
+                </a>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </AppLayout>

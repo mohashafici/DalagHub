@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProductCard } from '@/components/products/ProductCard';
 import { SearchBar } from '@/components/products/SearchBar';
-import { useProducts } from '@/contexts/ProductContext';
+import { useProducts, Product } from '@/contexts/ProductContext';
 import { LOCATIONS, CATEGORIES } from '@/types';
 import { Filter, MapPin, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,9 +21,9 @@ export default function SearchPage() {
   ];
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    return products.filter((product: Product) => {
       const matchesSearch = !searchQuery || 
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.subcategory.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesLocation = !selectedLocation || product.location === selectedLocation;
       const matchesSubcategory = !selectedSubcategory || product.subcategory === selectedSubcategory;
@@ -137,7 +137,7 @@ export default function SearchPage() {
 
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product: Product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

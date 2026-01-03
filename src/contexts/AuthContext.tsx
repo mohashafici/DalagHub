@@ -1,78 +1,186 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
+
+interface Profile {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  location: string;
+  created_at: string;
+}
+
+interface UserRole {
+  role: 'buyer' | 'seller';
+}
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
+  profile: Profile | null;
+  roles: ('buyer' | 'seller')[];
   isLoading: boolean;
-  login: (phone: string, password: string) => Promise<boolean>;
-  register: (name: string, phone: string, password: string, location: string) => Promise<boolean>;
-  logout: () => void;
+  isSeller: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, password: string, location: string, roles: ('buyer' | 'seller')[]) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user for demo
-const mockUser: User = {
-  id: 'demo-user',
-  name: 'Demo User',
-  phone: '+252612345678',
-  location: 'Mogadishu',
-  isSeller: true,
-  createdAt: new Date(),
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [roles, setRoles] = useState<('buyer' | 'seller')[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for stored user
-    const storedUser = localStorage.getItem('dalaghub_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  const isSeller = roles.includes('seller');
+
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (data && !error) {
+      setProfile(data);
     }
-    setIsLoading(false);
+  };
+
+  const fetchRoles = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+
+    if (data && !error) {
+      setRoles(data.map((r: UserRole) => r.role));
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await Promise.all([fetchProfile(user.id), fetchRoles(user.id)]);
+    }
+  };
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        // Defer fetching profile/roles to avoid deadlock
+        if (session?.user) {
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+            fetchRoles(session.user.id);
+          }, 0);
+        } else {
+          setProfile(null);
+          setRoles([]);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+        fetchRoles(session.user.id);
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (phone: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // For demo, accept any credentials
-    const loggedInUser = { ...mockUser, phone };
-    setUser(loggedInUser);
-    localStorage.setItem('dalaghub_user', JSON.stringify(loggedInUser));
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
     setIsLoading(false);
-    return true;
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
   };
 
-  const register = async (name: string, phone: string, password: string, location: string): Promise<boolean> => {
+  const register = async (
+    name: string, 
+    email: string, 
+    password: string, 
+    location: string,
+    userRoles: ('buyer' | 'seller')[]
+  ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name,
-      phone,
-      location,
-      isSeller: false,
-      createdAt: new Date(),
-    };
-    
-    setUser(newUser);
-    localStorage.setItem('dalaghub_user', JSON.stringify(newUser));
+    const redirectUrl = `${window.location.origin}/`;
+
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          name,
+          location,
+        }
+      }
+    });
+
+    if (authError) {
+      setIsLoading(false);
+      return { success: false, error: authError.message };
+    }
+
+    // Add user roles
+    if (authData.user) {
+      for (const role of userRoles) {
+        await supabase.from('user_roles').insert({
+          user_id: authData.user.id,
+          role,
+        });
+      }
+    }
+
     setIsLoading(false);
-    return true;
+    return { success: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('dalaghub_user');
+    setSession(null);
+    setProfile(null);
+    setRoles([]);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      profile, 
+      roles, 
+      isLoading, 
+      isSeller,
+      login, 
+      register, 
+      logout,
+      refreshProfile 
+    }}>
       {children}
     </AuthContext.Provider>
   );
