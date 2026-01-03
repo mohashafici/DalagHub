@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { LOCATIONS } from '@/types';
-import { Sprout, ArrowLeft, Mail, Lock, User, MapPin } from 'lucide-react';
+import { Sprout, ArrowLeft, Mail, Lock, User, MapPin, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -22,6 +22,7 @@ export default function AuthPage() {
     name: '',
     email: '',
     password: '',
+    phone: '',
     location: '',
   });
   const [selectedRoles, setSelectedRoles] = useState<('buyer' | 'seller')[]>(['buyer']);
@@ -90,6 +91,7 @@ export default function AuthPage() {
           formData.name, 
           formData.email, 
           formData.password, 
+          formData.phone,
           formData.location,
           selectedRoles
         );
@@ -167,6 +169,24 @@ export default function AuthPage() {
                   required
                 />
               </div>
+            </div>
+          )}
+
+          {mode === 'register' && (
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number (for WhatsApp)</Label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+252 61 xxx xxxx"
+                  value={formData.phone}
+                  onChange={(e) => updateFormData('phone', e.target.value)}
+                  className="pl-12"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">Buyers will contact you via WhatsApp</p>
             </div>
           )}
 
