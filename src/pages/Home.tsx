@@ -3,20 +3,20 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CategoryTabs } from '@/components/products/CategoryTabs';
 import { SearchBar } from '@/components/products/SearchBar';
-import { useProducts } from '@/contexts/ProductContext';
-import { Sprout } from 'lucide-react';
+import { useProducts, Product } from '@/contexts/ProductContext';
+import { Sprout, Loader2 } from 'lucide-react';
 
 type CategoryFilter = 'all' | 'crops' | 'livestock';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
-  const { products } = useProducts();
+  const { products, isLoading } = useProducts();
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    return products.filter((product: Product) => {
       const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.subcategory.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
@@ -54,9 +54,14 @@ export default function HomePage() {
 
       {/* Product Grid */}
       <section className="px-4 py-4">
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Loading products...</p>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {filteredProducts.map((product, index) => (
+            {filteredProducts.map((product, index: number) => (
               <div
                 key={product.id}
                 className="animate-fade-in"

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Clock } from 'lucide-react';
-import { Product, CATEGORIES } from '@/types';
+import { Product } from '@/contexts/ProductContext';
+import { CATEGORIES } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
@@ -10,7 +11,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className }: ProductCardProps) {
   const categoryInfo = CATEGORIES[product.category];
-  const timeAgo = getTimeAgo(product.createdAt);
+  const timeAgo = getTimeAgo(product.created_at);
 
   return (
     <Link
@@ -23,8 +24,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
-          src={product.images[0]}
-          alt={product.name}
+          src={product.images[0] || '/placeholder.svg'}
+          alt={product.title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
         />
@@ -38,7 +39,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Content */}
       <div className="p-3">
         <h3 className="mb-1 line-clamp-1 text-base font-semibold text-foreground">
-          {product.name}
+          {product.title}
         </h3>
 
         <div className="mb-2 flex items-center gap-1 text-sm text-muted-foreground">
@@ -66,9 +67,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
   );
 }
 
-function getTimeAgo(date: Date): string {
+function getTimeAgo(dateString: string): string {
   const now = new Date();
-  const diffMs = now.getTime() - new Date(date).getTime();
+  const diffMs = now.getTime() - new Date(dateString).getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) return 'Today';
