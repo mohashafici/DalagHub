@@ -1,73 +1,142 @@
-# Welcome to your Lovable project
+# 🌾 DalagHub - Agricultural Marketplace
 
-## Project info
+DalagHub is a mobile-first Progressive Web App (PWA) that connects Somali farmers and livestock owners with buyers, traders, restaurants, and exporters.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 📱 Overview
 
-## How can I edit this code?
+DalagHub is an agricultural marketplace designed for simplicity. The MVP focuses on **product listing + easy contact** rather than full e-commerce functionality. Sellers list their products, and buyers contact them directly via WhatsApp or phone call.
 
-There are several ways of editing your application.
+## 👥 Target Users
 
-**Use Lovable**
+- **Sellers**: Farmers & Livestock owners
+- **Buyers**: Traders, restaurants, exporters
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## ✨ Core Features
 
-Changes made via Lovable will be committed automatically to this repo.
+### For Sellers
+- Add agricultural products with photos, descriptions, and pricing
+- Manage product listings (mark as sold, delete)
+- Receive inquiries via WhatsApp or phone call
 
-**Use your preferred IDE**
+### For Buyers
+- Browse product listings by category
+- Search for specific products
+- Contact sellers directly via WhatsApp or phone call
+- View seller location and product details
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🧺 Product Categories
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Crops
+- Maize
+- Sorghum
+- Rice
+- Banana
+- Sesame
 
-Follow these steps:
+### Livestock
+- Camel
+- Cow
+- Goat
+- Sheep
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+## 🛠️ Tech Stack
+
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Build Tool**: Vite
+- **Backend**: Supabase (via Lovable Cloud)
+  - Authentication (Email/Password)
+  - PostgreSQL Database
+  - File Storage for product images
+- **PWA**: vite-plugin-pwa for offline support
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js & npm installed ([install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+
+### Installation
+
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navigate to project directory
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 📂 Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── assets/           # Images and static assets
+├── components/
+│   ├── layout/       # App layout, navigation
+│   ├── products/     # Product cards, search, filters
+│   └── ui/           # shadcn/ui components
+├── contexts/
+│   ├── AuthContext   # User authentication state
+│   └── ProductContext# Product data management
+├── hooks/            # Custom React hooks
+├── pages/
+│   ├── Landing       # Welcome page
+│   ├── Auth          # Login/Register
+│   ├── Home          # Product listings
+│   ├── Search        # Search products
+│   ├── AddProduct    # Create new listing
+│   ├── ProductDetails# View product
+│   └── Profile       # User profile
+├── types/            # TypeScript interfaces
+└── integrations/     # Supabase client
+```
 
-**Use GitHub Codespaces**
+## 🔐 Authentication
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Users can register as:
+- **Buyer**: Browse and contact sellers
+- **Seller**: List products + all buyer features
 
-## What technologies are used for this project?
+Registration requires:
+- Full name
+- Email address
+- Password
+- Phone number (for WhatsApp contact)
+- Location
 
-This project is built with:
+## 📍 Supported Locations
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Mogadishu
+- Hargeisa
+- Kismayo
+- Baidoa
+- Garowe
+- Beledweyne
+- Bosaso
+- Merca
+- Jowhar
+- Afgooye
 
-## How can I deploy this project?
+## 🌐 Deployment
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+This project is deployed via [Lovable](https://lovable.dev). Click **Share → Publish** in the Lovable editor to deploy.
 
-## Can I connect a custom domain to my Lovable project?
+### Custom Domain
 
-Yes, you can!
+To connect a custom domain:
+1. Navigate to Project > Settings > Domains
+2. Click "Connect Domain"
+3. Follow the DNS configuration instructions
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📄 License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is built with [Lovable](https://lovable.dev).
+
+---
+
+**Built with ❤️ for Somali farmers and traders**
