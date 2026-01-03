@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      product_reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          product_id: string
+          reason: string
+          reporter_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          product_id: string
+          reason: string
+          reporter_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          product_id?: string
+          reason?: string
+          reporter_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reports_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string
@@ -25,6 +60,7 @@ export type Database = {
           price: string | null
           quantity: string
           seller_id: string
+          status: Database["public"]["Enums"]["product_status"]
           subcategory: string
           title: string
           updated_at: string
@@ -39,6 +75,7 @@ export type Database = {
           price?: string | null
           quantity: string
           seller_id: string
+          status?: Database["public"]["Enums"]["product_status"]
           subcategory: string
           title: string
           updated_at?: string
@@ -53,6 +90,7 @@ export type Database = {
           price?: string | null
           quantity?: string
           seller_id?: string
+          status?: Database["public"]["Enums"]["product_status"]
           subcategory?: string
           title?: string
           updated_at?: string
@@ -121,6 +159,7 @@ export type Database = {
       }
     }
     Enums: {
+      product_status: "active" | "sold"
       user_role: "buyer" | "seller"
     }
     CompositeTypes: {
@@ -249,6 +288,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      product_status: ["active", "sold"],
       user_role: ["buyer", "seller"],
     },
   },

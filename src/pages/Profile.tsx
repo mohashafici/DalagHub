@@ -5,17 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProducts, Product } from '@/contexts/ProductContext';
-import { User, MapPin, Mail, LogOut, ChevronRight, Plus, Trash2, Loader2 } from 'lucide-react';
+import { User, MapPin, Mail, LogOut, ChevronRight, Plus, Trash2, Loader2, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, roles, logout, isSeller } = useAuth();
-  const { getProductsByUser, deleteProduct, isLoading } = useProducts();
+  const { allUserProducts, deleteProduct, updateProductStatus, isLoading } = useProducts();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const myListings = user ? getProductsByUser(user.id) : [];
+  const myListings = allUserProducts;
 
   const handleLogout = async () => {
     await logout();
@@ -34,6 +35,19 @@ export default function ProfilePage() {
       toast.error(result.error || 'Failed to delete product');
     }
     setDeletingId(null);
+  };
+
+  const handleToggleSold = async (productId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'sold' ? 'active' : 'sold';
+    setUpdatingId(productId);
+    const result = await updateProductStatus(productId, newStatus);
+    
+    if (result.success) {
+      toast.success(newStatus === 'sold' ? 'Marked as sold' : 'Marked as active');
+    } else {
+      toast.error(result.error || 'Failed to update status');
+    }
+    setUpdatingId(null);
   };
 
   if (!user || !profile) {
@@ -117,28 +131,53 @@ export default function ProfilePage() {
               {myListings.map((product: Product) => (
                 <div key={product.id} className="relative rounded-xl bg-card p-4 shadow-card">
                   <div className="flex gap-4">
-                    <img 
-                      src={product.images[0] || '/placeholder.svg'} 
-                      alt={product.title}
-                      className="h-20 w-20 rounded-lg object-cover"
-                    />
+                    <div className="relative">
+                      <img 
+                        src={product.images[0] || '/placeholder.svg'} 
+                        alt={product.title}
+                        className={`h-20 w-20 rounded-lg object-cover ${product.status === 'sold' ? 'opacity-50' : ''}`}
+                      />
+                      {product.status === 'sold' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="rounded bg-muted/90 px-2 py-1 text-xs font-medium">SOLD</span>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-foreground truncate">{product.title}</h3>
                       <p className="text-sm text-muted-foreground">{product.subcategory}</p>
                       <p className="text-sm text-muted-foreground">{product.location}</p>
                       <p className="text-sm font-medium text-accent">{product.price}</p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteProduct(product.id)}
-                      disabled={deletingId === product.id}
-                      className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive hover:bg-destructive/20 disabled:opacity-50"
-                    >
-                      {deletingId === product.id ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-5 w-5" />
-                      )}
-                    </button>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => handleToggleSold(product.id, product.status)}
+                        disabled={updatingId === product.id}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors disabled:opacity-50 ${
+                          product.status === 'sold' 
+                            ? 'bg-success/10 text-success hover:bg-success/20' 
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                        }`}
+                        title={product.status === 'sold' ? 'Mark as active' : 'Mark as sold'}
+                      >
+                        {updatingId === product.id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <CheckCircle className="h-5 w-5" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        disabled={deletingId === product.id}
+                        className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive hover:bg-destructive/20 disabled:opacity-50"
+                      >
+                        {deletingId === product.id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
