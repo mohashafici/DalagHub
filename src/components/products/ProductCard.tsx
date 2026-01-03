@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Clock } from 'lucide-react';
-import { Product } from '@/contexts/ProductContext';
+import { MapPin, Clock, MessageCircle } from 'lucide-react';
+import { Product, generateWhatsAppLink } from '@/contexts/ProductContext';
 import { CATEGORIES } from '@/types';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface ProductCardProps {
   product: Product;
@@ -12,12 +13,23 @@ interface ProductCardProps {
 export function ProductCard({ product, className }: ProductCardProps) {
   const categoryInfo = CATEGORIES[product.category];
   const timeAgo = getTimeAgo(product.created_at);
+  const isSold = product.status === 'sold';
+  const sellerPhone = product.seller_phone;
+
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (sellerPhone) {
+      window.open(generateWhatsAppLink(sellerPhone, product.title), '_blank');
+    }
+  };
 
   return (
     <Link
       to={`/product/${product.id}`}
       className={cn(
         "group block overflow-hidden rounded-xl bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1",
+        isSold && "opacity-75",
         className
       )}
     >
@@ -26,14 +38,33 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <img
           src={product.images[0] || '/placeholder.svg'}
           alt={product.title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className={cn(
+            "h-full w-full object-cover transition-transform duration-300 group-hover:scale-105",
+            isSold && "grayscale"
+          )}
           loading="lazy"
         />
-        <div className="absolute left-2 top-2">
+        <div className="absolute left-2 top-2 flex gap-1">
           <span className="inline-flex items-center gap-1 rounded-full bg-card/90 px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
             {categoryInfo.icon} {product.subcategory}
           </span>
         </div>
+        {isSold && (
+          <div className="absolute right-2 top-2">
+            <Badge variant="destructive" className="text-xs font-semibold">
+              Sold
+            </Badge>
+          </div>
+        )}
+        {sellerPhone && !isSold && (
+          <button
+            onClick={handleWhatsAppClick}
+            className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-110"
+            aria-label="Contact on WhatsApp"
+          >
+            <MessageCircle className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Content */}
