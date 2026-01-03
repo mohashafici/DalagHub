@@ -138,14 +138,8 @@ Registration requires:
 
 ## 🌐 Deployment
 
-This project is deployed via [Lovable](https://lovable.dev). Click **Share → Publish** in the Lovable editor to deploy.
+This project is deployed checkout here [DalagHub](https://dalaghub.vercel.app). 
 
-### Custom Domain
-
-To connect a custom domain:
-1. Navigate to Project > Settings > Domains
-2. Click "Connect Domain"
-3. Follow the DNS configuration instructions
 
 ## 📄 License
 
