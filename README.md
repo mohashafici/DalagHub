@@ -39,6 +39,20 @@ DalagHub is an agricultural marketplace designed for simplicity. The MVP focuses
 - Goat
 - Sheep
 
+## 📸 Screenshots
+
+### Landing Page
+![Landing Page](public/screenshots/landing.png)
+
+### Home Page - Product Listings
+![Home Page](public/screenshots/home.png)
+
+### Authentication
+![Auth Page](public/screenshots/auth.png)
+
+### Add Product
+![Add Product](public/screenshots/add-product.png)
+
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18 with TypeScript
