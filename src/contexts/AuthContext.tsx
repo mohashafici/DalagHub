@@ -23,7 +23,7 @@ interface AuthContextType {
   isLoading: boolean;
   isSeller: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, password: string, location: string, roles: ('buyer' | 'seller')[]) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, password: string, phone: string, location: string, roles: ('buyer' | 'seller')[]) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -122,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     name: string, 
     email: string, 
     password: string, 
+    phone: string,
     location: string,
     userRoles: ('buyer' | 'seller')[]
   ): Promise<{ success: boolean; error?: string }> => {
@@ -136,6 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           name,
+          phone,
           location,
         }
       }
