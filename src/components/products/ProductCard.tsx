@@ -56,10 +56,16 @@ export function ProductCard({ product, className }: ProductCardProps) {
             </Badge>
           </div>
         )}
-        {sellerPhone && !isSold && (
+        {!isSold && (
           <button
             onClick={handleWhatsAppClick}
-            className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-110"
+            disabled={!sellerPhone}
+            className={cn(
+              "absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full shadow-lg transition-transform",
+              sellerPhone 
+                ? "bg-[#25D366] text-white hover:scale-110" 
+                : "bg-muted text-muted-foreground cursor-not-allowed"
+            )}
             aria-label="Contact on WhatsApp"
           >
             <MessageCircle className="h-5 w-5" />
