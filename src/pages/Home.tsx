@@ -26,51 +26,73 @@ export default function HomePage() {
   return (
     <AppLayout>
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg">
-        <div className="flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-              <Sprout className="h-6 w-6 text-primary-foreground" />
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/50">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex items-center justify-between px-4 py-4 lg:px-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+                <Sprout className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <span className="text-xl font-bold text-foreground">DalagHub</span>
             </div>
-            <span className="text-xl font-bold text-foreground">DalagHub</span>
+            {/* Desktop: inline search */}
+            <div className="hidden lg:block lg:w-96">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search crops, livestock, locations..."
+              />
+            </div>
+          </div>
+
+          {/* Mobile: full width search */}
+          <div className="px-4 pb-3 lg:hidden">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search crops, livestock, locations..."
+            />
+          </div>
+
+          {/* Categories */}
+          <div className="px-4 lg:px-8">
+            <CategoryTabs
+              activeCategory={activeCategory}
+              onChange={setActiveCategory}
+            />
           </div>
         </div>
-
-        {/* Search */}
-        <div className="px-4 pb-2">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Search crops, livestock, locations..."
-          />
-        </div>
-
-        {/* Categories */}
-        <CategoryTabs
-          activeCategory={activeCategory}
-          onChange={setActiveCategory}
-        />
       </header>
 
       {/* Product Grid */}
-      <section className="px-4 py-4">
+      <section className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
             <p className="text-muted-foreground">Loading products...</p>
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {filteredProducts.map((product, index: number) => (
-              <div
-                key={product.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
+          <>
+            <div className="mb-6 hidden lg:flex lg:items-center lg:justify-between">
+              <h2 className="text-2xl font-bold text-foreground">
+                {activeCategory === 'all' ? 'All Products' : activeCategory === 'crops' ? 'Crops' : 'Livestock'}
+              </h2>
+              <p className="text-muted-foreground">
+                {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {filteredProducts.map((product, index: number) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 text-5xl">🔍</div>

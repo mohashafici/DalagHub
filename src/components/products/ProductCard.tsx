@@ -28,7 +28,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     <Link
       to={`/product/${product.id}`}
       className={cn(
-        "group block overflow-hidden rounded-xl bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1",
+        "group block overflow-hidden rounded-2xl bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1",
         isSold && "opacity-75",
         className
       )}
@@ -74,14 +74,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-3">
-        <h3 className="mb-1 line-clamp-1 text-base font-semibold text-foreground">
+      <div className="p-3 lg:p-4">
+        <h3 className="mb-1.5 line-clamp-1 text-base font-semibold text-foreground lg:text-lg">
           {product.title}
         </h3>
 
-        <div className="mb-2 flex items-center gap-1 text-sm text-muted-foreground">
+        <div className="mb-2 flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
-          <span>{product.location}</span>
+          <span className="truncate">{product.location}</span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -95,7 +95,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </div>
 
         {product.price && (
-          <div className="mt-2 text-base font-bold text-accent">
+          <div className="mt-2 text-base font-bold text-accent lg:text-lg">
             {product.price}
           </div>
         )}
