@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Sprout, ShoppingCart, ArrowRight, Users, Phone, MapPin } from 'lucide-react';
-import heroImage from '@/assets/hero-farm.jpg';
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Sprout, ShoppingCart, ArrowRight, Users, Phone, MapPin } from "lucide-react";
+import heroImage from "@/assets/hero-farm.jpg";
 
 export default function LandingPage() {
   return (
@@ -31,11 +31,7 @@ export default function LandingPage() {
       <section className="relative flex min-h-screen lg:min-h-[90vh] flex-col items-center justify-center overflow-hidden lg:pt-16">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={heroImage}
-            alt="Somali farmland at sunrise"
-            className="h-full w-full object-cover"
-          />
+          <img src={heroImage} alt="Somali farmland at sunrise" className="h-full w-full object-cover" />
           <div className="gradient-overlay absolute inset-0" />
         </div>
 
@@ -66,7 +62,12 @@ export default function LandingPage() {
               </Link>
             </Button>
 
-            <Button asChild variant="outline" size="lg" className="w-full lg:w-auto lg:px-8 border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="w-full lg:w-auto lg:px-8 border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20"
+            >
               <Link to="/add-product">
                 <Sprout className="h-5 w-5" />
                 Sell Your Product
@@ -79,9 +80,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="bg-background px-6 py-16 lg:py-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="mb-4 text-center text-2xl font-bold text-foreground lg:text-4xl">
-            Why DalagHub?
-          </h2>
+          <h2 className="mb-4 text-center text-2xl font-bold text-foreground lg:text-4xl">Why DalagHub?</h2>
           <p className="mx-auto mb-12 max-w-2xl text-center text-muted-foreground lg:text-lg">
             The easiest way to buy and sell agricultural products in Somalia
           </p>
@@ -142,7 +141,7 @@ export default function LandingPage() {
             <span className="font-semibold text-foreground">DalagHub</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2024 DalagHub. Connecting farmers and buyers across Somalia.
+            © 2025 DalagHub. Connecting farmers and buyers across Somalia.
           </p>
         </div>
       </footer>
@@ -153,9 +152,7 @@ export default function LandingPage() {
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="group flex flex-col items-center rounded-2xl bg-card p-6 text-center shadow-card transition-all duration-300 hover:shadow-elevated hover:-translate-y-1 lg:p-8">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-secondary">
-        {icon}
-      </div>
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-secondary">{icon}</div>
       <h3 className="mb-2 text-lg font-semibold text-foreground">{title}</h3>
       <p className="text-muted-foreground leading-relaxed">{description}</p>
     </div>
