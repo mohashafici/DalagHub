@@ -127,16 +127,16 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background overflow-x-hidden">
       {/* Header */}
-      <header className="flex items-center gap-4 px-4 py-4">
-        <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+      <header className="w-full max-w-md mx-auto flex items-center gap-4 px-4 py-4 lg:max-w-lg lg:pt-8">
+        <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary hover:bg-secondary/80 transition-colors">
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </Link>
       </header>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-1 flex-col px-6 py-8 w-full max-w-md mx-auto lg:max-w-lg lg:py-12">
         {/* Logo & Title */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
