@@ -141,7 +141,7 @@ export default function LandingPage() {
             <span className="font-semibold text-foreground">DalagHub</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2025 DalagHub. Connecting farmers and buyers across Somalia.
+            © 2026 DalagHub. Connecting farmers and buyers across Somalia.
           </p>
         </div>
       </footer>
